@@ -1,0 +1,24 @@
+{
+  "name": "default",
+  "version": "1.0.0",
+  "description": "기본 SDLC 4단계 선언적 하네스 블루프린트 모듈",
+  "workflows": [
+    {
+      "phase": 1,
+      "dir": "docs/01_planning",
+      "description": "기획 & 요구사항 명세 Stage",
+      "nodes": [
+        { "file": "00_raw_inputs/README.md", "type": "input", "description": "원시 요구사항 입력 창구" },
+        { "file": "01_user_requirements.md", "type": "spec", "description": "유저 요구사항 명세" }
+      ]
+    },
+    {
+      "phase": 2,
+      "dir": "docs/02_architecture_and_design",
+      "description": "아키텍처 & 인터페이스 설계 Stage",
+      "nodes": [
+        { "file": "05_tech_stack_and_skills.md", "type": "guardrail", "description": "AGENTS.md 불변 가드레일" }
+      ]
+    }
+  ]
+}
