@@ -1,0 +1,49 @@
+{
+  "name": "antigravity",
+  "version": "2.0.0",
+  "description": "Antigravity CLI 2.0 전용 4단계 SDLC 선언적 하네스 블루프린트",
+  "target_agent": "antigravity",
+  "workflows": [
+    {
+      "phase": 1,
+      "dir": "docs/01_planning",
+      "description": "기획 & 요구사항 명세 Stage",
+      "skill_path": ".agents/skills/phase_1_planning/SKILL.md",
+      "nodes": [
+        {
+          "id": "raw_inputs",
+          "file": "00_raw_inputs/README.md",
+          "type": "input",
+          "description": "원시 요구사항 및 데이터 입력 창구",
+          "outputs": ["docs/01_planning/00_raw_inputs/README.md"]
+        },
+        {
+          "id": "user_requirements",
+          "file": "01_user_requirements.md",
+          "type": "spec",
+          "description": "유저 요구사항 상세 명세서",
+          "depends_on": ["raw_inputs"],
+          "inputs": ["docs/01_planning/00_raw_inputs/README.md"],
+          "outputs": ["docs/01_planning/01_user_requirements.md"]
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "dir": "docs/02_architecture_and_design",
+      "description": "아키텍처 & 인터페이스 설계 Stage",
+      "skill_path": ".agents/skills/phase_2_architecture/SKILL.md",
+      "nodes": [
+        {
+          "id": "feature_spec",
+          "file": "01_detailed_feature_spec.md",
+          "type": "spec",
+          "description": "상세 기능 및 시스템 아키텍처 명세서",
+          "depends_on": ["user_requirements"],
+          "inputs": ["docs/01_planning/01_user_requirements.md"],
+          "outputs": ["docs/02_architecture_and_design/01_detailed_feature_spec.md"]
+        }
+      ]
+    }
+  ]
+}

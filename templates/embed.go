@@ -5,5 +5,5 @@ import (
 )
 
 // EmbeddedFS holds default blueprint templates
-//go:embed default/*
+//go:embed all:default all:antigravity
 var EmbeddedFS embed.FS
