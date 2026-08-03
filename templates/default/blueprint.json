@@ -1,23 +1,63 @@
 {
   "name": "default",
   "version": "1.0.0",
-  "description": "기본 SDLC 4단계 선언적 하네스 블루프린트 모듈",
+  "description": "# Default SDLC Harness Blueprint 🚀\n\n> **Standard 4-Phase SDLC Guardrail & Specification Harness Template**\n\n본 템플릿은 AI 코딩 에이전트와의 협업 시 발생하는 **맥락 유실, 할루시네이션, 아키텍처 오염(Vibe Slop)**을 방지하기 위한 표준 4단계 소프트웨어 공학 가드레일 모듈입니다.\n\n---\n\n## 🌟 핵심 가치 (Key Value Proposition)\n- **🎯 4단계 결정론적 개발 단계 분리**: Planning ➔ Architecture ➔ TDD Development ➔ QA Verification\n- **🛡️ 불변 가드레일 센서**: AI 에이전트의 오버엔지니어링 방지 및 클린 아키텍처 규칙 자동 강제\n- **⚡ Zero-Dependency**: 외부 마법 프레임워크 없는 경량화 스펙 파이프라인\n\n---\n\n## 📁 디렉터리 구성 (Architectural Layout)\n- `docs/01_planning/`: 원시 데이터(`00_raw_inputs`) 및 유저 요구사항 명세서\n- `docs/02_architecture_and_design/`: 기능 명세, DTO, 가드레일 규칙(`AGENTS.md`)\n\n---\n\n## 💡 사용 방법 (Quick Start)\n```bash\ncreate-harness-app my-app --template default\n```",
+  "author": {
+    "name": "Cloit AI Core Engineering Team",
+    "email": "harness-dev@cloit.io"
+  },
+  "license": "MIT",
+  "keywords": ["sdlc", "harness", "clean-architecture", "guardrails", "ai-pair-programming"],
+  "target_agent": "generic",
+  "repository": "https://github.com/cloit/create-harness-app",
+  "readme": "README.md",
   "workflows": [
     {
       "phase": 1,
+      "name": "Planning & Requirements Spec",
       "dir": "docs/01_planning",
-      "description": "기획 & 요구사항 명세 Stage",
+      "description": "사용자의 원시 요구사항을 수집하고 AI 에이전트의 샌드박스 실행 경계와 스펙 명세서를 수립하는 기획 단계",
+      "skill_path": "docs/01_planning/00_raw_inputs/README.md",
       "nodes": [
-        { "file": "00_raw_inputs/README.md", "type": "input", "description": "원시 요구사항 입력 창구" },
-        { "file": "01_user_requirements.md", "type": "spec", "description": "유저 요구사항 명세" }
+        {
+          "id": "raw_inputs_collector",
+          "name": "Raw User Prompt & Input Ingestion",
+          "file": "00_raw_inputs/README.md",
+          "type": "input",
+          "description": "사용자의 아이디어, 프롬프트, 도메인 제약사항 수집",
+          "prompt_instruction": "사용자 원시 요구사항 파싱 및 불확실한 요구사항 조율 인터뷰 수행",
+          "inputs": ["User Request Text"],
+          "outputs": ["docs/01_planning/00_raw_inputs/README.md"]
+        },
+        {
+          "id": "user_requirements_spec",
+          "name": "Formal User Requirements Specification",
+          "file": "01_user_requirements.md",
+          "type": "spec",
+          "description": "정형화된 기능/비기능 요구사항 및 시스템 Use-Case 명세서 작성",
+          "prompt_instruction": "원시 요구사항을 분석하여 Functional Requirements & Constraints 도출",
+          "inputs": ["docs/01_planning/00_raw_inputs/README.md"],
+          "outputs": ["docs/01_planning/01_user_requirements.md"]
+        }
       ]
     },
     {
       "phase": 2,
+      "name": "Architecture & Guardrail Design",
       "dir": "docs/02_architecture_and_design",
-      "description": "아키텍처 & 인터페이스 설계 Stage",
+      "description": "시스템 아키텍처, DTO, API 컨트랙트 및 에이전트 불변 가드레일(AGENTS.md)을 정립하는 설계 단계",
+      "skill_path": "docs/02_architecture_and_design/05_tech_stack_and_skills.md",
       "nodes": [
-        { "file": "05_tech_stack_and_skills.md", "type": "guardrail", "description": "AGENTS.md 불변 가드레일" }
+        {
+          "id": "architecture_guardrail_spec",
+          "name": "System Architecture & AGENTS.md Rules",
+          "file": "05_tech_stack_and_skills.md",
+          "type": "guardrail",
+          "description": "에이전트가 코드를 변경하기 전 반드시 준수해야 하는 불변 아키텍처 가드레일 제정",
+          "prompt_instruction": "클린 아키텍처, 패키지 레이어 분리 및 오버엔지니어링 금지 규칙 주입",
+          "inputs": ["docs/01_planning/01_user_requirements.md"],
+          "outputs": ["AGENTS.md", "docs/02_architecture_and_design/05_tech_stack_and_skills.md"]
+        }
       ]
     }
   ]

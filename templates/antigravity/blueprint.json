@@ -1,27 +1,40 @@
 {
   "name": "antigravity",
   "version": "2.0.0",
-  "description": "Antigravity CLI 2.0 전용 4단계 SDLC 선언적 하네스 블루프린트",
+  "description": "# Antigravity 2.0 SDLC Harness Blueprint 🛸\n\n> **Native Declarative SDLC Harness Specification Pipeline for Google Antigravity Agent (AGY)**\n\n본 템플릿은 Google Antigravity AI 에이전트와 완벽히 호환되는 **자율 스킬 기반 4단계 SDLC 하네스 스펙 파이프라인**입니다. 에이전트의 프롬프트 샌드박스 가이드라인 및 `.agents/skills/` 디렉터리 내 정교한 자율 지시 모듈을 자동 스캐폴딩합니다.\n\n---\n\n## 🌟 핵심 가치 (Key Value Proposition)\n- **🤖 Agentic Custom Skills 연동**: `.agents/skills/` 경로에 각 개발 Phase별 자율 지시 스킬(`SKILL.md`)을 직접 주입\n- **🔒 TDD & Guardrail 센서 가두기**: 코딩 전 사용자 요구사항 및 스펙 문서를 선행 검증하도록 에이전트의 실행 경계 구성\n- **🔘 HITL (Human-in-the-Loop) 승인 게이트**: 핵심 아키텍처 및 릴리즈 전환 시 수동 리뷰 스텝 제공\n\n---\n\n## 💡 사용 방법 (Quick Start)\n```bash\ncreate-harness-app my-app --template antigravity\n```",
+  "author": {
+    "name": "Google Antigravity Core Team",
+    "email": "antigravity-dev@google.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["antigravity", "sdlc", "ai-pair-programming", "agentic-skills", "guardrails"],
   "target_agent": "antigravity",
+  "repository": "https://github.com/cloit/create-harness-app",
+  "readme": "README.md",
   "workflows": [
     {
       "phase": 1,
+      "name": "Planning & Discovery Phase",
       "dir": "docs/01_planning",
-      "description": "기획 & 요구사항 명세 Stage",
+      "description": "사용자의 문제 정의를 수집하고 에이전트 전용 샌드박스 스킬을 연동하여 명세서를 수립하는 단계",
       "skill_path": ".agents/skills/phase_1_planning/SKILL.md",
       "nodes": [
         {
           "id": "raw_inputs",
+          "name": "Raw Data Ingestion & Prompt Capturing",
           "file": "00_raw_inputs/README.md",
           "type": "input",
           "description": "원시 요구사항 및 데이터 입력 창구",
+          "prompt_instruction": "Phase 1 Planning Skill(.agents/skills/phase_1_planning/SKILL.md)을 호출하여 요구사항 수집 인터뷰 실행",
           "outputs": ["docs/01_planning/00_raw_inputs/README.md"]
         },
         {
           "id": "user_requirements",
+          "name": "Formal User Requirements Specification",
           "file": "01_user_requirements.md",
           "type": "spec",
-          "description": "유저 요구사항 상세 명세서",
+          "description": "유저 요구사항 상세 명세서 작성",
+          "prompt_instruction": "원시 데이터를 정형화된 Use-Case 및 도메인 엔티티 요구사항 문서로 정리",
           "depends_on": ["raw_inputs"],
           "inputs": ["docs/01_planning/00_raw_inputs/README.md"],
           "outputs": ["docs/01_planning/01_user_requirements.md"]
@@ -30,18 +43,21 @@
     },
     {
       "phase": 2,
+      "name": "Architecture & Guardrail Phase",
       "dir": "docs/02_architecture_and_design",
-      "description": "아키텍처 & 인터페이스 설계 Stage",
+      "description": "상세 아키텍처 및 불변 AGENTS.md 가드레일을 구축하여 AI 에이전트의 실행 센서 경계를 설정하는 단계",
       "skill_path": ".agents/skills/phase_2_architecture/SKILL.md",
       "nodes": [
         {
           "id": "feature_spec",
+          "name": "System Architecture & Skill Boundary Spec",
           "file": "01_detailed_feature_spec.md",
           "type": "spec",
-          "description": "상세 기능 및 시스템 아키텍처 명세서",
+          "description": "상세 기능 및 시스템 아키텍처 명세서 작성",
+          "prompt_instruction": "Phase 2 Architecture Skill을 활성화하여 패키지 레이어 설계 및 AGENTS.md 불변 제약조건 검증",
           "depends_on": ["user_requirements"],
           "inputs": ["docs/01_planning/01_user_requirements.md"],
-          "outputs": ["docs/02_architecture_and_design/01_detailed_feature_spec.md"]
+          "outputs": ["docs/02_architecture_and_design/01_detailed_feature_spec.md", "AGENTS.md"]
         }
       ]
     }

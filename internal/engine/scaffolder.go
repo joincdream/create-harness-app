@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"create-harness-app/internal/config"
 	"create-harness-app/internal/harness"
@@ -39,15 +40,18 @@ func Scaffold(cfg *config.Config, tmpl *template.ResolvedTemplate) (*ScaffolderR
 	}
 	fmt.Println("  ✓ 생성: .harness/state.json (결정적 동적 상태 원본)")
 
-	phaseMap := make(map[string]bool)
-
-	// Copy template files including .agents/ if exist
-	_ = fs.WalkDir(tmpl.FS, "files", func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+	// 2. Clean 1:1 Copy of all template files and directories into target project
+	_ = fs.WalkDir(tmpl.FS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || path == "." || path == "blueprint.json" || path == "files" {
 			return nil
 		}
-		relPath, _ := filepath.Rel("files", path)
-		fullTargetPath := filepath.Join(targetAbsPath, relPath)
+
+		targetRelPath := strings.TrimPrefix(path, "files/")
+		fullTargetPath := filepath.Join(targetAbsPath, targetRelPath)
+
+		if d.IsDir() {
+			return os.MkdirAll(fullTargetPath, 0755)
+		}
 
 		if err := os.MkdirAll(filepath.Dir(fullTargetPath), 0755); err != nil {
 			return err
@@ -56,42 +60,12 @@ func Scaffold(cfg *config.Config, tmpl *template.ResolvedTemplate) (*ScaffolderR
 		content, readErr := fs.ReadFile(tmpl.FS, path)
 		if readErr == nil {
 			if writeErr := os.WriteFile(fullTargetPath, content, 0644); writeErr == nil {
-				fmt.Printf("  ✓ 생성: %s\n", relPath)
+				fmt.Printf("  ✓ 생성: %s\n", targetRelPath)
 				result.FilesCreated++
 			}
 		}
 		return nil
 	})
-
-	for _, wf := range tmpl.Blueprint.Workflows {
-		phaseDir := filepath.Join(targetAbsPath, wf.Dir)
-		if err := os.MkdirAll(phaseDir, 0755); err != nil {
-			return nil, fmt.Errorf("failed to create phase dir %s: %w", phaseDir, err)
-		}
-		phaseMap[wf.Dir] = true
-
-		for _, node := range wf.Nodes {
-			filePath := filepath.Join(wf.Dir, node.File)
-			fullTargetPath := filepath.Join(targetAbsPath, filePath)
-
-			// If file not created by WalkDir yet, write placeholder
-			if _, err := os.Stat(fullTargetPath); os.IsNotExist(err) {
-				if err := os.MkdirAll(filepath.Dir(fullTargetPath), 0755); err != nil {
-					return nil, fmt.Errorf("failed to create parent dir: %w", err)
-				}
-				content := []byte(fmt.Sprintf("# %s\n\n%s\n", node.File, node.Description))
-				if err := os.WriteFile(fullTargetPath, content, 0644); err != nil {
-					return nil, fmt.Errorf("failed to write file %s: %w", fullTargetPath, err)
-				}
-				fmt.Printf("  ✓ 생성: %s\n", filePath)
-				result.FilesCreated++
-			}
-		}
-	}
-
-	for p := range phaseMap {
-		result.Phases = append(result.Phases, p)
-	}
 
 	fmt.Printf("\n✅ 성공적으로 %d개의 SDLC 스펙 & 하네스 파일이 생성되었습니다.\n", result.FilesCreated)
 	return result, nil

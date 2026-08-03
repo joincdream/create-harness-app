@@ -1,0 +1,46 @@
+{
+  "app_name": "my-refactor-app",
+  "target_agent": "antigravity",
+  "current_phase": 1,
+  "nodes": {
+    "clean-arch-refactor": {
+      "id": "",
+      "file": "",
+      "phase": 2,
+      "status": "pending",
+      "inputs": [
+        "docs/01_planning/analysis_report.md"
+      ],
+      "outputs": [
+        "docs/02_design/refactor_diff.patch"
+      ],
+      "description": ""
+    },
+    "code-analysis": {
+      "id": "",
+      "file": "",
+      "phase": 1,
+      "status": "completed",
+      "inputs": [
+        "./src/**/*.go"
+      ],
+      "outputs": [
+        "docs/01_planning/analysis_report.md"
+      ],
+      "description": ""
+    },
+    "tdd-verification": {
+      "id": "",
+      "file": "",
+      "phase": 3,
+      "status": "pending",
+      "inputs": [
+        "docs/02_design/refactor_diff.patch"
+      ],
+      "outputs": [
+        "docs/03_development/test_summary.log"
+      ],
+      "description": ""
+    }
+  }
+}

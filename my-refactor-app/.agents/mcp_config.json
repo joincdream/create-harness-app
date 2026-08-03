@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "create-harness-app": {
+      "command": "/usr/local/bin/create-harness-app",
+      "args": ["mcp"]
+    }
+  },
+  "permissions": {
+    "commandAllowlist": [
+      "create-harness-app",
+      "go test ./...",
+      "make test",
+      "make e2e",
+      "git status"
+    ]
+  }
+}

@@ -9,12 +9,13 @@ import (
 )
 
 type Config struct {
-	AppName      string
-	TemplateName string
-	CustomPath   string
-	Force        bool
-	ShowVersion  bool
-	ShowHelp     bool
+	AppName       string
+	TemplateName  string
+	CustomPath    string
+	Force         bool
+	ShowVersion   bool
+	ShowHelp      bool
+	ListTemplates bool
 }
 
 func ParseConfig(args []string) (*Config, error) {
@@ -29,18 +30,39 @@ func ParseConfig(args []string) (*Config, error) {
 	flags.BoolVar(&cfg.ShowVersion, "v", false, "Show version (short)")
 	flags.BoolVar(&cfg.ShowHelp, "help", false, "Show help")
 	flags.BoolVar(&cfg.ShowHelp, "h", false, "Show help (short)")
+	flags.BoolVar(&cfg.ListTemplates, "list", false, "List available templates")
+	flags.BoolVar(&cfg.ListTemplates, "l", false, "List available templates (short)")
 
-	if err := flags.Parse(args); err != nil {
+	// Reorder args so that options/flags can appear after app name argument
+	var flagArgs []string
+	var nonFlags []string
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if strings.HasPrefix(arg, "-") {
+			flagArgs = append(flagArgs, arg)
+			// Check if flag expects value (like --template <name> or -path <dir>)
+			if (arg == "--template" || arg == "-template" || arg == "--path" || arg == "-path") && i+1 < len(args) {
+				i++
+				flagArgs = append(flagArgs, args[i])
+			}
+		} else {
+			nonFlags = append(nonFlags, arg)
+		}
+	}
+
+	reorderedArgs := append(flagArgs, nonFlags...)
+
+	if err := flags.Parse(reorderedArgs); err != nil {
 		return nil, err
 	}
 
-	nonFlagArgs := flags.Args()
-	if len(nonFlagArgs) > 0 {
-		cfg.AppName = nonFlagArgs[0]
+	parsedNonFlags := flags.Args()
+	if len(parsedNonFlags) > 0 {
+		cfg.AppName = parsedNonFlags[0]
 	}
 
 	// Interactive Wizard Mode if AppName is not provided and non-flag execution
-	if cfg.AppName == "" && !cfg.ShowVersion && !cfg.ShowHelp {
+	if cfg.AppName == "" && !cfg.ShowVersion && !cfg.ShowHelp && !cfg.ListTemplates {
 		runWizard(&cfg)
 	}
 

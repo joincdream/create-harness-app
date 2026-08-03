@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "create-harness-app": {
+      "command": "/usr/local/bin/create-harness-app",
+      "args": ["mcp"]
+    }
+  }
+}
