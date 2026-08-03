@@ -1,6 +1,8 @@
 {
   "app_name": "my-refactor-app",
+  "version": "v1.0.0",
   "target_agent": "antigravity",
+  "description": "${file:.harness/description.md}",
   "current_phase": 1,
   "nodes": {
     "clean-arch-refactor": {

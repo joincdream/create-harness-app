@@ -30,11 +30,12 @@ func PrintSubCommandHelp(cmd string) {
 		fmt.Println("Description: Extracts optimized .agents/ and docs/ assets from a sample app back into harness templates.")
 
 	case "hub":
-		fmt.Println("Usage: create-harness-app hub <list|info|pull> [args]")
+		fmt.Println("Usage: create-harness-app hub <list|info|pull|push> [args]")
 		fmt.Println("       create-harness-app hub list [--agent <agent>] [--query <q>]")
 		fmt.Println("       create-harness-app hub info <name> [version]")
 		fmt.Println("       create-harness-app hub pull <name> [version]")
-		fmt.Println("Description: Interacts with HarnessHub backend registry for searching, inspecting, and pulling templates.")
+		fmt.Println("       create-harness-app hub push <name> [version] [--description <desc>] [--agent <agent>]")
+		fmt.Println("Description: Interacts with HarnessHub backend registry for searching, inspecting, pulling, and pushing templates.")
 
 	case "templates", "template", "list":
 		fmt.Println("Usage: create-harness-app templates [list]")

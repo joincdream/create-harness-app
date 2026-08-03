@@ -1,10 +1,12 @@
 package hub
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -221,4 +223,101 @@ func (c *Client) DownloadTemplate(ctx context.Context, name, version string) (io
 	}
 
 	return resp.Body, nil
+}
+
+// PublishTemplate uploads template tar.gz archive and metadata to HarnessHub
+func (c *Client) PublishTemplate(ctx context.Context, name, version, targetAgent, description string, archiveBytes []byte, blueprintJSON string) (*TemplateDetail, error) {
+	if name == "" || version == "" {
+		return nil, fmt.Errorf("name and version are required for publishing")
+	}
+	if targetAgent == "" {
+		targetAgent = "antigravity"
+	}
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	_ = writer.WriteField("name", name)
+	_ = writer.WriteField("version", version)
+	_ = writer.WriteField("target_agent", targetAgent)
+	_ = writer.WriteField("description", description)
+	_ = writer.WriteField("blueprint_json", blueprintJSON)
+
+	part, err := writer.CreateFormFile("file", fmt.Sprintf("%s-%s.tar.gz", name, version))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create multipart form file: %w", err)
+	}
+	if _, err := part.Write(archiveBytes); err != nil {
+		return nil, fmt.Errorf("failed to write archive bytes into form: %w", err)
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close multipart writer: %w", err)
+	}
+
+	reqURL := fmt.Sprintf("%s/api/v1/templates", c.BaseURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, reqURL, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to HarnessHub (%s): %w", c.BaseURL, err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("hub publish status %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var stdResp StandardResponse
+	var detail TemplateDetail
+
+	if err := json.Unmarshal(respBody, &stdResp); err == nil && stdResp.Data != nil {
+		if !stdResp.Success && stdResp.Error != nil {
+			return nil, fmt.Errorf("hub error [%s]: %s", stdResp.Error.Code, stdResp.Error.Message)
+		}
+		if err := json.Unmarshal(stdResp.Data, &detail); err == nil {
+			return &detail, nil
+		}
+	}
+
+	if err := json.Unmarshal(respBody, &detail); err != nil {
+		return nil, fmt.Errorf("failed to decode response detail: %w", err)
+	}
+
+	return &detail, nil
+}
+
+// DeleteTemplate deletes a published template version from HarnessHub
+func (c *Client) DeleteTemplate(ctx context.Context, name, version string) error {
+	if name == "" || version == "" {
+		return fmt.Errorf("name and version are required for deleting")
+	}
+
+	reqURL := fmt.Sprintf("%s/api/v1/templates/%s/%s", c.BaseURL, url.PathEscape(name), url.PathEscape(version))
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, reqURL, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to connect to HarnessHub (%s): %w", c.BaseURL, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("hub delete status %d: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
 }
