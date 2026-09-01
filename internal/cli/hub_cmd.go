@@ -199,7 +199,7 @@ func HandleHubPush(name, version, description, targetAgent string) {
 	}
 
 	blueprintJSON := "{}"
-	statePath := filepath.Join(cwd, ".harness", "state.json")
+	statePath := filepath.Join(cwd, "harness", "state.json")
 	if bytes, readErr := os.ReadFile(statePath); readErr == nil {
 		var stateMap map[string]interface{}
 		if jsonErr := json.Unmarshal(bytes, &stateMap); jsonErr == nil {
@@ -222,7 +222,7 @@ func HandleHubPush(name, version, description, targetAgent string) {
 	// Warning if description remains empty
 	if strings.TrimSpace(description) == "" {
 		fmt.Fprintln(os.Stderr, "⚠️ Warning: Template description is missing or empty.")
-		fmt.Fprintln(os.Stderr, "   Please set \"description\": \".harness/description.md\" in .harness/state.json.")
+		fmt.Fprintln(os.Stderr, "   Please set \"description\": \"${file:harness/description.md}\" in harness/state.json.")
 	}
 
 	detail, err := client.PublishTemplate(context.Background(), name, version, targetAgent, description, archiveBytes, blueprintJSON)
@@ -256,7 +256,7 @@ func packWorkspaceTarGz(rootDir string) ([]byte, error) {
 	gw := gzip.NewWriter(&buf)
 	tw := tar.NewWriter(gw)
 
-	targets := []string{"AGENTS.md", "docs", ".harness", ".agents"}
+	targets := []string{"AGENTS.md", "docs", "harness", ".agents"}
 
 	for _, target := range targets {
 		targetPath := filepath.Join(rootDir, target)
@@ -402,13 +402,13 @@ func buildStandardBlueprintJSON(name, version, targetAgent, description string, 
 			continue
 		}
 
-		dirName := fmt.Sprintf("stage_%d", p)
+		dirName := fmt.Sprintf("harness/docs/stage_%d", p)
 		if p == 1 {
-			dirName = "docs/01_planning"
+			dirName = "harness/docs/01_planning"
 		} else if p == 2 {
-			dirName = "docs/02_design"
+			dirName = "harness/docs/02_design"
 		} else if p == 3 {
-			dirName = "docs/03_development"
+			dirName = "harness/docs/03_development"
 		}
 
 		wf := blueprint.Workflow{

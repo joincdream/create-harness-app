@@ -40,7 +40,7 @@ func TestScaffold(t *testing.T) {
 	}
 
 	// Verify required planning file exists
-	reqFile := filepath.Join(targetAppDir, "docs", "01_planning", "01_user_requirements.md")
+	reqFile := filepath.Join(targetAppDir, "harness", "docs", "01_planning", "01_user_requirements.md")
 	if _, err := os.Stat(reqFile); os.IsNotExist(err) {
 		t.Errorf("expected file %s to exist", reqFile)
 	}

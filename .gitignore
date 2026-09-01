@@ -11,6 +11,7 @@ create-harness-app.exe
 demo-app/
 my-test-app/
 my-harness-app/
+my-refactor-app/
 *.tmp
 
 # OS Generated Files

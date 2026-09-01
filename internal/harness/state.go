@@ -28,12 +28,20 @@ type HarnessState struct {
 }
 
 func GetStatePath(targetDir string) string {
-	return filepath.Join(targetDir, ".harness", "state.json")
+	return filepath.Join(targetDir, "harness", "state.json")
+}
+
+func EnsureStateDir(targetDir string) error {
+	stateDir := filepath.Join(targetDir, "harness")
+	if err := os.MkdirAll(stateDir, 0755); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func InitState(bp *blueprint.Blueprint, targetDir string) error {
-	stateDir := filepath.Join(targetDir, ".harness")
-	if err := os.MkdirAll(stateDir, 0755); err != nil {
+	if err := EnsureStateDir(targetDir); err != nil {
 		return err
 	}
 

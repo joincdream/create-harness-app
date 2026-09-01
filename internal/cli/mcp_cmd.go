@@ -95,12 +95,12 @@ func InspectMCPConfig(cwd string) {
 func RunMCPServer(cwd string) {
 	logDebug("🚀 create-harness-app mcp started. CWD: %s, Args: %v", cwd, os.Args)
 
-	mcpPath := filepath.Join(cwd, ".harness", "mcp.json")
+	mcpPath := filepath.Join(cwd, "harness", "mcp.json")
 	data, err := os.ReadFile(mcpPath)
 	if err != nil {
-		logDebug("⚠️ Failed to read .harness/mcp.json: %v", err)
+		logDebug("⚠️ Failed to read harness/mcp.json: %v", err)
 	} else {
-		logDebug("📄 Successfully loaded .harness/mcp.json (%d bytes)", len(data))
+		logDebug("📄 Successfully loaded harness/mcp.json (%d bytes)", len(data))
 	}
 
 	var cfg MCPConfig

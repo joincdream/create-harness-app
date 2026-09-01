@@ -34,11 +34,11 @@ func Scaffold(cfg *config.Config, tmpl *template.ResolvedTemplate) (*ScaffolderR
 		TargetDir: targetAbsPath,
 	}
 
-	// 1. Initialize Harness State (.harness/state.json)
+	// 1. Initialize Harness State (harness/state.json)
 	if err := harness.InitState(tmpl.Blueprint, targetAbsPath); err != nil {
-		return nil, fmt.Errorf("failed to init harness state: %w", err)
+		return nil, fmt.Errorf("failed to initialize harness state: %w", err)
 	}
-	fmt.Println("  ✓ 생성: .harness/state.json (결정적 동적 상태 원본)")
+	fmt.Println("  ✓ 생성: harness/state.json (결정적 동적 상태 원본)")
 
 	// 2. Clean 1:1 Copy of all template files and directories into target project
 	_ = fs.WalkDir(tmpl.FS, ".", func(path string, d fs.DirEntry, err error) error {
